@@ -38,35 +38,53 @@ window.addEventListener('DOMContentLoaded', (event) => {
     // You can now initialize Spotify.Player and use the SDK
     console.log('Sdk ready')
     const token = access_token;
-  
+
     const player = new Spotify.Player({
       name: 'Olawale',
       token,
       getOAuthToken: callback => {
-        callback(getAuthToken(refresh_token))
+        callback(token);
+        //callback(getAuthToken(refresh_token))
       },
       volume: 0.5
     });
 
-      player.addListener('player_state_changed', ({
-        position,
-        duration,
-        track_window: { current_track }
-      }) => {
-        const { name, artists, album } = current_track;
+    player.on('initialization_error', ({ message }) => {
+      console.error('Failed to initialize', message);
+    });
 
-        const artWork = album.images[2].url;
-        const allArtists = artists.map(artist => artist.name).join(', ').replace(/(.+),$/, '$1');
+    player.on('authentication_error', ({ message }) => {
+      console.error('Failed to authenticate', message);
+    });
 
-        console.log('trackName', name);
-        console.log('artWork', artWork);
-        console.log('allArtists', allArtists);
+    player.on('playback_error', ({ message }) => {
+      console.error('Failed to perform playback', message);
+    });
 
-        updatePlayingData(artWork, allArtists, name );
-      });
+    player.addListener('ready', ({ device_id }) => {
+      console.log('The Web Playback SDK is ready to play music!');
+      console.log('Device ID', device_id);
+    });
+
+    player.addListener('player_state_changed', ({
+      position,
+      duration,
+      track_window: { current_track }
+    }) => {
+      const { name, artists, album } = current_track;
+
+      const artWork = album.images[2].url;
+      const allArtists = artists.map(artist => artist.name).join(', ').replace(/(.+),$/, '$1');
+
+      console.log('trackName', name);
+      console.log('artWork', artWork);
+      console.log('allArtists', allArtists);
+
+      updatePlayingData(artWork, allArtists, name);
+    });
 
     player.connect().then(success => {
-      if (success) 
+      if (success)
         console.log('Successful connection')
     })
   };
