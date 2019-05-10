@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/auth/spotify', passport.authenticate('spotify', {
-  scope: ['user-read-playback-state', 'user-read-private', 'streaming', 'user-read-birthdate', 'user-read-email', 'user-read-private'],
+  scope: ['streaming', 'user-read-birthdate', 'user-read-email', 'user-read-private'],
   showDialog: true
 }));
 
@@ -54,6 +54,7 @@ app.post('/get_token', async (req, res) => {
   curl.setOpt(Curl.option.VERBOSE, true);
 
   curl.on('end', (statusCode, body, headers) => {
+    console.log(body);
     if (statusCode === 200)
       return res.status(200)
         .json(JSON.parse(body));
